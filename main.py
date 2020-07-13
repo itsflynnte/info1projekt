@@ -5,9 +5,9 @@ import numpy as np
 pygame.font.init()
 pygame.init()
 #MUSIK
-# pygame.mixer.music.load('Jazz_Club.mp3')
-# pygame.mixer.music.play(-1,0.0)
-# pygame.mixer.music.set_volume(.025)
+pygame.mixer.music.load('Jazz_Club.mp3')
+pygame.mixer.music.play(-1,0.0)
+pygame.mixer.music.set_volume(.025)
 
 #VARIABLEN
 FPS = 60
@@ -26,10 +26,10 @@ b_stone_height = 200
 #FELD UND STEIN KOORDINATEN IM FENSTER
 mill_x = (s_width - mill_middle_x) // 2
 mill_y = s_height - mill_middle_y
-black_stone_x = mill_x // 2
-black_stone_y = mill_y + b_stone_height
-white_stone_x = mill_x * 3
+white_stone_x = mill_x // 2
 white_stone_y = mill_y + b_stone_height
+black_stone_x = mill_x * 3
+black_stone_y = mill_y + b_stone_height
 
 #FENSTER ERSTELLUNG UD CLOCK
 win = pygame.display.set_mode((s_width, s_height))  # pygame.FULLSCREEN
@@ -87,6 +87,8 @@ def draw(surface):
     pygame.transform.scale(white_stone, (30, 30))
     win.blit(black_stone, (black_stone_x, black_stone_y))
     win.blit(white_stone, (white_stone_x, white_stone_y))
+    instructionWhite('Weiß [Linke Maustaste]', 20, (255, 255, 255), win)
+    instructionBlack('Schwarz [Rechte Maustaste]', 20, (255, 255, 255), win)
     pygame.display.flip()
 
     # win.blit(black_stone, pos1)
@@ -132,38 +134,66 @@ def draw_text_middle(text, size, color, surface):
         mill_x + mill_middle_x / 2 - (label.get_width() / 2), mill_y + mill_middle_y / 2 - label.get_height() / 2))
 
 
+def instructionWhite(text, size, color, surface):
+    font = pygame.font.SysFont('arial', size, bold=True)
+    label = font.render(text, 1, (0,0,0))
+    surface.blit(label, ((white_stone_x - 100), (white_stone_y - 145)))
+
+def instructionBlack(text, size, color, surface):
+    font = pygame.font.SysFont('arial', size, bold=True)
+    label = font.render(text, 1, (0,0,0))
+    surface.blit(label, ((black_stone_x - 100), (black_stone_y - 145)))
+
+def beginningOV(text, size, color, surface):
+    font = pygame.font.SysFont('arial', size, bold=True)
+    label = font.render(text, 1, color)
+    surface.blit(label, (
+        mill_x + mill_middle_x / 2 - (label.get_width() / 2), (mill_y + mill_middle_y / 2 - label.get_height() / 2) + 225))
+
 def positionSearch(search):
     lst = [pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10, pos11, pos11, pos12, pos13,
-            pos14, pos15, pos16, pos17, pos18, pos19, pos20, pos21, pos22, pos23, pos24]        
+            pos14, pos15, pos16, pos17, pos18, pos19, pos20, pos21, pos22, pos23, pos24]
     search = list(pygame.mouse.get_pos())
+
     lst_np = np.asarray(lst)
     distances = np.linalg.norm(search - lst_np, axis=1)
     nearest_pos_idx = np.argmin(distances)
     nearest_pos = lst_np[nearest_pos_idx]
     return nearest_pos
 
-
 #AUSFÜHRUNG
 def main():
+    left_mouse_down = False
+    right_mouse_down = False
+    count = 9
+    pygame.mouse.set_visible(True)
+
+    draw(win)
     run = True
     while run:
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 pygame.quit()
-            '''if event.type == pygame.MOUSEBUTTONDOWN:
-                if gesucht in list(gesucht) == pygame.MOUSEBUTTONDOWN:
-                    win.blit(white_stone, list(gesucht))
-                    pygame.display.update()'''
             if event.type == pygame.MOUSEBUTTONDOWN:
-                gesucht = pygame.mouse.get_pos()
-                win.blit(black_stone, pos21)
-                pos = list(positionSearch(gesucht))
-                win.blit(white_stone, pos)
-                pygame.display.flip()
-        draw(win)
-        clock.tick(FPS)
-        pygame.display.flip()
+                if event.button == 1:
+                    left_mouse_down = True
+                    if left_mouse_down:
+                        gesucht = pygame.mouse.get_pos()
+                        pos = list(positionSearch(gesucht))
+                        win.blit(white_stone, pos)
+                        pygame.display.update()
+
+                if event.button == 3:
+                    right_mouse_down = True
+                    if right_mouse_down:
+                        gesucht = pygame.mouse.get_pos()
+                        pos = list(positionSearch(gesucht))
+                        win.blit(black_stone, pos)
+                        pygame.display.update()
+
+
+    clock.tick(FPS)
+
 #START
 def startingscreen():
     run = True
@@ -179,11 +209,12 @@ def startingscreen():
                 if event.key == pygame.K_SPACE:
                     draw(win)
                     beginning()
+
 def beginning():
 
    run = True
    while run:
-    draw_text_middle("Weiss beginnt [beliebige Taste]", 60, (0, 0, 0), win)
+    beginningOV("Weiss beginnt [beliebige Taste]", 60, (0, 0, 0), win)
     pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -192,6 +223,6 @@ def beginning():
         if event.type == pygame.KEYDOWN:
             main()
 
-
 #SPIELLOGIK
+
 startingscreen()
