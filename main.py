@@ -79,7 +79,7 @@ pos24 = [(mill_middle_x + 240), (mill_y + 450)]
 #OBERFLÄCHE 1
 def draw(surface):
     surface.fill((197, 142, 97))
-    font = pygame.font.SysFont('arial', 40, bold=True)
+    font = pygame.font.SysFont('hooge 05_54', 40, bold=False)
     label = font.render('Mill by JJ and Mika', 1, (0, 0, 0))
     surface.blit(label, (mill_x + mill_middle_x / 2 - (label.get_width() / 2), 30))  # (1600-705)/2   || (900-705)/2'''
     win.blit(mill_bg, (mill_x, mill_y))
@@ -87,8 +87,8 @@ def draw(surface):
     pygame.transform.scale(white_stone, (30, 30))
     win.blit(black_stone, (black_stone_x, black_stone_y))
     win.blit(white_stone, (white_stone_x, white_stone_y))
-    instructionWhite('Weiß [Linke Maustaste]', 20, (255, 255, 255), win)
-    instructionBlack('Schwarz [Rechte Maustaste]', 20, (255, 255, 255), win)
+    instructionWhite('Weiß [Linke Maustaste]', 20, (0, 0, 0), win)
+    instructionBlack('Schwarz [Rechte Maustaste]', 20, (0, 0, 0), win)
     pygame.display.flip()
 
     # win.blit(black_stone, pos1)
@@ -128,27 +128,38 @@ def drawGrid():
 
 #PRESS ANY KEY SCREEN FUNKTION
 def draw_text_middle(text, size, color, surface):
-    font = pygame.font.SysFont('arial', size, bold=True)
+    font = pygame.font.SysFont('hooge 05_54', size, bold=False)
     label = font.render(text, 1, color)
     surface.blit(label, (
         mill_x + mill_middle_x / 2 - (label.get_width() / 2), mill_y + mill_middle_y / 2 - label.get_height() / 2))
 
-
 def instructionWhite(text, size, color, surface):
     font = pygame.font.SysFont('arial', size, bold=True)
-    label = font.render(text, 1, (0,0,0))
+    label = font.render(text, 1, color)
     surface.blit(label, ((white_stone_x - 100), (white_stone_y - 145)))
 
 def instructionBlack(text, size, color, surface):
     font = pygame.font.SysFont('arial', size, bold=True)
-    label = font.render(text, 1, (0,0,0))
+    label = font.render(text, 1, color)
     surface.blit(label, ((black_stone_x - 100), (black_stone_y - 145)))
 
 def beginningOV(text, size, color, surface):
-    font = pygame.font.SysFont('arial', size, bold=True)
+    font = pygame.font.SysFont('hooge 05_54', size, bold=False)
     label = font.render(text, 1, color)
     surface.blit(label, (
         mill_x + mill_middle_x / 2 - (label.get_width() / 2), (mill_y + mill_middle_y / 2 - label.get_height() / 2) + 225))
+
+def quitScreen1(text, size, color, surface):
+    font = pygame.font.SysFont('arial', size, bold=True)
+    label = font.render(text, 1, color)
+    surface.blit(label, (
+        mill_x + mill_middle_x / 2 - (label.get_width() / 2), (mill_y - 80) + mill_middle_y / 2 - label.get_height() / 2))
+
+def quitScreen2(text, size, color, surface):
+    font = pygame.font.SysFont('arial', size, bold=True)
+    label = font.render(text, 1, color)
+    surface.blit(label, (
+        mill_x + mill_middle_x / 2 - (label.get_width() / 2), (mill_y - 10) + mill_middle_y / 2 - label.get_height() / 2))
 
 def positionSearch(search):
     lst = [pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10, pos11, pos11, pos12, pos13,
@@ -162,66 +173,75 @@ def positionSearch(search):
     return nearest_pos
 
 #AUSFÜHRUNG
-def main():
-    left_mouse_down = False
-    right_mouse_down = False
-    count = 9
+def gameCycle():
     pygame.mouse.set_visible(True)
-
     draw(win)
+
+
     run = True
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                gameQuit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    left_mouse_down = True
-                    if left_mouse_down:
-                        gesucht = pygame.mouse.get_pos()
-                        pos = list(positionSearch(gesucht))
-                        win.blit(white_stone, pos)
-                        pygame.display.update()
+                    gesucht = pygame.mouse.get_pos()
+                    pos = list(positionSearch(gesucht))
+                    win.blit(white_stone, pos)
+                    pygame.display.update()
 
                 if event.button == 3:
-                    right_mouse_down = True
-                    if right_mouse_down:
-                        gesucht = pygame.mouse.get_pos()
-                        pos = list(positionSearch(gesucht))
-                        win.blit(black_stone, pos)
-                        pygame.display.update()
+                    gesucht = pygame.mouse.get_pos()
+                    pos = list(positionSearch(gesucht))
+                    win.blit(black_stone, pos)
+                    pygame.display.update()
 
 
-    clock.tick(FPS)
+clock.tick(FPS)
 
 #START
 def startingscreen():
-    run = True
+    start = True
     win.fill((0, 0, 0))
-    draw_text_middle('Drücke sie die Leertaste, um das Spiel zu starten', 30, (255, 255, 255), win)
+    draw_text_middle('Drücke sie die Leertaste, um das Spiel zu starten', 25, (255, 255, 255), win)
     pygame.display.update()
-    while run:
+    while start:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                run = False
+                start = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     draw(win)
                     beginning()
 
-def beginning():
 
-   run = True
-   while run:
-    beginningOV("Weiss beginnt [beliebige Taste]", 60, (0, 0, 0), win)
-    pygame.display.update()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            run = False
-        if event.type == pygame.KEYDOWN:
-            main()
+def beginning():
+    begin = True
+    while begin:
+        beginningOV("Weiss beginnt [beliebige Taste]", 30, (0, 0, 0), win)
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                gameCycle()
+
+def gameQuit():
+    quit = True
+    while quit:
+        quitScreen1("Wollen Sie Spiel wirklich beenden?", 40, (0,0,0), win)
+        quitScreen2("[ENTER = JA | SPACE = NEIN]", 40, (0,0,0), win)
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    gameCycle()
+
+
+        pygame.display.flip()
 
 #SPIELLOGIK
 
