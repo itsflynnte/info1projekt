@@ -155,7 +155,6 @@ def positionSearch(search):
 
 #AUSFÜHRUNG
 def gameCycle():
-    pygame.mouse.set_visible(True)
     run = True
     while run:
         for event in pygame.event.get():
@@ -176,20 +175,25 @@ def gameCycle():
                         pygame.display.update()
                 print(poslst)
                 for index in range(len(neighbourlst)):
-                    counterMill = 0
+                    counterWhite = 0
+                    counterBlack = 0
+                    placing_W_Stone = 9
+                    placing_B_Stone = 9
                     for tupleValue in neighbourlst[index]:
                         if poslst[tupleValue] == "W":
-                            counterMill += 1
-                            if counterMill == 3 and not (listTrueFalse[index]):
+                            counterWhite += 1
+                            if counterWhite == 3 and not (listTrueFalse[index]):
                                 listTrueFalse[index] = True
                                 print("Mühle weiß")
-                                counterMill = 0
+                                counterWhite = 0
+                                placing_W_Stone -= 1
                         if poslst[tupleValue] == "B":
-                            counterMill += 1
-                            if counterMill == 3 and not (listTrueFalse[index]):
+                            counterBlack += 1
+                            if counterBlack == 3 and not (listTrueFalse[index]):
                                 listTrueFalse[index] = True
                                 print("Mühle schwarz")
-                                counterMill = 0
+                                counterBlack = 0
+                                placing_B_Stone -= 1
 
 
 clock.tick(FPS)
@@ -227,9 +231,10 @@ def beginning():
 def gameQuit():
     quit = True
     while quit:
-        quitScreen1("Willst du das Spiel wirklich beenden?", 40, (0, 0, 0), win)
-        quitScreen2("Ja[ENTER] | Nein[SPACE]", 40, (0, 0, 0), win)
+
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                print("Willst du das Souek wirklich beenden? \n JA[ENTER] || NEIN[SPACE] ")
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     pygame.quit()
