@@ -1,244 +1,260 @@
 import pygame
-import numpy as np
-import time
 
-#INITIALISIERUNG
-pygame.font.init()
 pygame.init()
 
-#MUSIK
-pygame.mixer.music.load('Jazz_Club.mp3')
-pygame.mixer.music.play(-1,0.0)
-pygame.mixer.music.set_volume(.025)
+win = pygame.display.set_mode((500, 480))
 
-#VARIABLEN
-FPS = 60
-s_width = 1100      #Größe des Fensters
-s_height = 700      #Größe des Fensters
-mill_middle_x = 500    #Koordinaten des Mühlefelds
-mill_middle_y = 600   #Koordinaten des Mühlefelds
-BLACK = (0,0,0)
-block_size = 80
+pygame.display.set_caption("First Game")
 
+walkRight = [pygame.image.load('R1.png'), pygame.image.load('R2.png'), pygame.image.load('R3.png'),
+             pygame.image.load('R4.png'), pygame.image.load('R5.png'), pygame.image.load('R6.png'),
+             pygame.image.load('R7.png'), pygame.image.load('R8.png'), pygame.image.load('R9.png')]
+walkLeft = [pygame.image.load('L1.png'), pygame.image.load('L2.png'), pygame.image.load('L3.png'),
+            pygame.image.load('L4.png'), pygame.image.load('L5.png'), pygame.image.load('L6.png'),
+            pygame.image.load('L7.png'), pygame.image.load('L8.png'), pygame.image.load('L9.png')]
+bg = pygame.image.load('bg.jpg')
+char = pygame.image.load('standing.png')
 
-#STEINE GRÖßE
-b_stone_width = 200
-b_stone_height = 200
-
-#FELD UND STEIN KOORDINATEN IM FENSTER
-mill_x = (s_width - mill_middle_x) // 2
-mill_y = s_height - mill_middle_y
-white_stone_x = mill_x // 2
-white_stone_y = mill_y + b_stone_height
-black_stone_x = mill_x * 3
-black_stone_y = mill_y + b_stone_height
-
-#FENSTER ERSTELLUNG UD CLOCK
-win = pygame.display.set_mode((s_width, s_height))  # pygame.FULLSCREEN
-pygame.display.set_caption("Mill by JJ and Mika")
 clock = pygame.time.Clock()
 
-#BILDER: SPIELFELD & STEINE
-mill_bg = pygame.image.load('bg_mill.png')
-white_stone = pygame.image.load('stone_white.png')
-black_stone = pygame.image.load('stone_black.png')
+#bulletSound = pygame.mixer.Sound("bullet.mp3")
+#hitSound = pygame.mixer.Sound("hit.mp3")
 
-#ABFRAGE DER MÖGLICHEN POSITIONEN
-pos1 = [(mill_x + 10), mill_y]
-pos2 = [(mill_middle_x + 25), mill_y]
-pos3 = [(mill_middle_x + 240), mill_y]
-
-pos4 = [((mill_middle_x + 25) - 145), mill_y + 80]
-pos5 = [(mill_middle_x + 25), (mill_y + 80)]
-pos6 = [((mill_middle_x + 25) + 145), (mill_y + 80)]
-
-pos7 = [((mill_middle_x + 25) - 80), (mill_y + 145)]
-pos8 = [(mill_middle_x + 25), (mill_y + 145)]
-pos9 = [((mill_middle_x + 25) + 80), (mill_y + 145)]
-
-pos10 = [(mill_x + 10), (mill_y + 225)]
-pos11 = [((mill_middle_x + 25) - 145), (mill_y + 225)]
-pos12 = [((mill_middle_x + 25) - 80), (mill_y + 225)]
-pos13 = [((mill_middle_x + 25) + 80), (mill_y + 225)]
-pos14 = [((mill_middle_x + 25) + 145), (mill_y + 225)]
-pos15 = [(mill_middle_x + 240), (mill_y + 225)]
-
-pos16 = [((mill_middle_x + 25) - 80), ((mill_y + 450) - 145)]
-pos17 = [(mill_middle_x + 25), ((mill_y + 450) - 145)]
-pos18 = [((mill_middle_x + 25) + 80), (mill_y + 450) - 145]
-
-pos19 = [((mill_middle_x + 25) - 145), (mill_y + 450) - 80]
-pos20 = [(mill_middle_x + 25), (mill_y + 450) - 80]
-pos21 = [((mill_middle_x + 25) + 145), (mill_y + 450) - 80]
-
-pos22 = [(mill_x + 10), (mill_y + 450)]
-pos23 = [(mill_middle_x + 25), (mill_y + 450)]
-pos24 = [(mill_middle_x + 240), (mill_y + 450)]
-
-poslst = [None] * 25
-neighbourlst = [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9, 10, 11), (12, 13, 14), (15, 16, 17), (18, 19, 20), (21, 22, 23),
-                (0, 9, 21), (3, 10, 18), (6, 11, 15), (1, 4, 7), (16, 19, 22), (8, 12, 17), (5, 13, 20), (2, 14, 23)]
-listTrueFalse = [False] * 16
+#music = pygame.mixer.music.load('music.mp3')
+#pygame.mixer.music.play(-1)
 
 
-#OBERFLÄCHE 1
-def draw(surface):
-    surface.fill((197, 142, 97))
-    font = pygame.font.SysFont('hooge 05_54', 40, bold=False)
-    label = font.render('Mill by JJ and Mika', 1, (0, 0, 0))
-    surface.blit(label, (mill_x + mill_middle_x / 2 - (label.get_width() / 2), 30))  # (1600-705)/2   || (900-705)/2'''
-    win.blit(mill_bg, (mill_x, mill_y))
-    pygame.transform.scale(black_stone, (30, 30))
-    pygame.transform.scale(white_stone, (30, 30))
-    win.blit(black_stone, (black_stone_x, black_stone_y))
-    win.blit(white_stone, (white_stone_x, white_stone_y))
-    instructionWhite('Weiß [Linke Maustaste]', 20, (0, 0, 0), win)
-    instructionBlack('Schwarz [Rechte Maustaste]', 20, (0, 0, 0), win)
-    pygame.display.update()
+score = 0
 
 
-#ÖBERFLÄCHE 2
-def drawGrid():
-    blockSize = 38
-    for x in range(mill_x):
-        for y in range(mill_y):
-            rect = pygame.Rect(x * blockSize, y * blockSize, blockSize, blockSize)
-            pygame.draw.rect(mill_bg, BLACK, rect, 1)
+class player(object):
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.vel = 5
+        self.isJump = False
+        self.left = False
+        self.right = False
+        self.walkCount = 0
+        self.jumpCount = 10
+        self.standing = True
+        self.hitbox = (self.x + 17, self.y + 11, 29, 52)
 
-#PRESS ANY KEY SCREEN FUNKTION
-def draw_text_middle(text, size, color, surface):
-    font = pygame.font.SysFont('hooge 05_54', size, bold=False)
-    label = font.render(text, 1, color)
-    surface.blit(label, (
-        mill_x + mill_middle_x / 2 - (label.get_width() / 2), mill_y + mill_middle_y / 2 - label.get_height() / 2))
+    def draw(self, win):
+        if self.walkCount + 1 >= 27:
+            self.walkCount = 0
 
-def instructionWhite(text, size, color, surface):
-    font = pygame.font.SysFont('arial', size, bold=True)
-    label = font.render(text, 1, color)
-    surface.blit(label, ((white_stone_x - 100), (white_stone_y - 145)))
+        if not (self.standing):
+            if self.left:
+                win.blit(walkLeft[self.walkCount // 3], (self.x, self.y))
+                self.walkCount += 1
+            elif self.right:
+                win.blit(walkRight[self.walkCount // 3], (self.x, self.y))
+                self.walkCount += 1
+        else:
+            if self.right:
+                win.blit(walkRight[0], (self.x, self.y))
+            else:
+                win.blit(walkLeft[0], (self.x, self.y))
+        self.hitbox = (self.x + 17, self.y + 11, 29, 52)
+        # pygame.draw.rect(win, (255,0,0), self.hitbox,2)
 
-def instructionBlack(text, size, color, surface):
-    font = pygame.font.SysFont('arial', size, bold=True)
-    label = font.render(text, 1, color)
-    surface.blit(label, ((black_stone_x - 100), (black_stone_y - 145)))
-
-def beginningOV(text, size, color, surface):
-    font = pygame.font.SysFont('hooge 05_54', size, bold=False)
-    label = font.render(text, 1, color)
-    surface.blit(label, (
-        mill_x + mill_middle_x / 2 - (label.get_width() / 2), (mill_y + mill_middle_y / 2 - label.get_height() / 2) + 225))
-
-def quitScreen1(text, size, color, surface):
-    font = pygame.font.SysFont('arial', size, bold=True)
-    label = font.render(text, 1, color)
-    surface.blit(label, (
-        mill_x + mill_middle_x / 2 - (label.get_width() / 2), (mill_y - 80) + mill_middle_y / 2 - label.get_height() / 2))
-
-def quitScreen2(text, size, color, surface):
-    font = pygame.font.SysFont('arial', size, bold=True)
-    label = font.render(text, 1, color)
-    surface.blit(label, (
-        mill_x + mill_middle_x / 2 - (label.get_width() / 2), (mill_y - 10) + mill_middle_y / 2 - label.get_height() / 2))
-
-
-def positionSearch(search):
-    lst = [pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10, pos11, pos11, pos12, pos13,
-            pos14, pos15, pos16, pos17, pos18, pos19, pos20, pos21, pos22, pos23, pos24]
-    search = list(pygame.mouse.get_pos())
-
-    lst_np = np.asarray(lst)
-    distances = np.linalg.norm(search - lst_np, axis=1)
-    nearest_pos_idx = np.argmin(distances)
-    nearest_pos = lst_np[nearest_pos_idx]
-    return nearest_pos, nearest_pos_idx
-
-
-#AUSFÜHRUNG
-def gameCycle():
-    pygame.mouse.set_visible(True)
-    run = True
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                gameQuit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                gesucht = pygame.mouse.get_pos()
-                cord, idx = positionSearch(gesucht)
-                pos = list(cord)
-                if poslst[idx] == None:
-                    if event.button == 1:
-                        win.blit(white_stone, pos)
-                        poslst[idx] = "W"
-                        pygame.display.update()
-                    if event.button == 3:
-                        win.blit(black_stone, pos)
-                        poslst[idx] = "B"
-                        pygame.display.update()
-                print(poslst)
-                for index in range(len(neighbourlst)):
-                    counterMill = 0
-                    for tupleValue in neighbourlst[index]:
-                        if poslst[tupleValue] == "W":
-                            counterMill += 1
-                            if counterMill == 3 and not (listTrueFalse[index]):
-                                listTrueFalse[index] = True
-                                print("Mühle weiß")
-                                counterMill = 0
-                        if poslst[tupleValue] == "B":
-                            counterMill += 1
-                            if counterMill == 3 and not (listTrueFalse[index]):
-                                listTrueFalse[index] = True
-                                print("Mühle schwarz")
-                                counterMill = 0
-
-
-clock.tick(FPS)
-
-#START
-def startingscreen():
-    start = True
-    win.fill((0, 0, 0))
-    draw_text_middle('Drücke sie die Leertaste, um das Spiel zu starten', 40, (255, 255, 255), win)
-    pygame.display.update()
-    while start:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                start = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    draw(win)
-                    beginning()
-
-
-
-def beginning():
-    begin = True
-    while begin:
-        beginningOV("Weiss beginnt [beliebige Taste]", 30, (0, 0, 0), win)
+    def hit(self):
+        self.isJump = False
+        self.jumpCount = 10
+        self.x = 100
+        self.y = 410
+        self.walkCount = 0
+        font1 = pygame.font.SysFont('comicsans', 100)
+        text = font1.render('-5', 1, (255, 0, 0))
+        win.blit(text, (250 - (text.get_width() / 2), 200))
         pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            if event.type == pygame.KEYDOWN:
-                draw(win)
-                gameCycle()
-
-def gameQuit():
-    quit = True
-    while quit:
-        quitScreen1("Willst du das Spiel wirklich beenden?", 40, (0, 0, 0), win)
-        quitScreen2("Ja[ENTER] | Nein[SPACE]", 40, (0, 0, 0), win)
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+        i = 0
+        while i < 200:
+            pygame.time.delay(10)
+            i += 1
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    i = 201
                     pygame.quit()
-                if event.key == pygame.K_SPACE:
-                    gameCycle()
-        pygame.display.update()
 
-        #quitScreen ausblenden
 
-#SPIELLOGIK
+class projectile(object):
+    def __init__(self, x, y, radius, color, facing):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.facing = facing
+        self.vel = 8 * facing
 
-startingscreen()
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
+
+
+class enemy(object):
+    walkRight = [pygame.image.load('R1E.png'), pygame.image.load('R2E.png'), pygame.image.load('R3E.png'),
+                 pygame.image.load('R4E.png'), pygame.image.load('R5E.png'), pygame.image.load('R6E.png'),
+                 pygame.image.load('R7E.png'), pygame.image.load('R8E.png'), pygame.image.load('R9E.png'),
+                 pygame.image.load('R10E.png'), pygame.image.load('R11E.png')]
+    walkLeft = [pygame.image.load('L1E.png'), pygame.image.load('L2E.png'), pygame.image.load('L3E.png'),
+                pygame.image.load('L4E.png'), pygame.image.load('L5E.png'), pygame.image.load('L6E.png'),
+                pygame.image.load('L7E.png'), pygame.image.load('L8E.png'), pygame.image.load('L9E.png'),
+                pygame.image.load('L10E.png'), pygame.image.load('L11E.png')]
+
+    def __init__(self, x, y, width, height, end):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.end = end
+        self.path = [self.x, self.end]
+        self.walkCount = 0
+        self.vel = 3
+        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+        self.health = 10
+        self.visible = True
+
+    def draw(self, win):
+        self.move()
+        if self.visible:
+            if self.walkCount + 1 >= 33:
+                self.walkCount = 0
+
+            if self.vel > 0:
+                win.blit(self.walkRight[self.walkCount // 3], (self.x, self.y))
+                self.walkCount += 1
+            else:
+                win.blit(self.walkLeft[self.walkCount // 3], (self.x, self.y))
+                self.walkCount += 1
+
+            pygame.draw.rect(win, (255, 0, 0), (self.hitbox[0], self.hitbox[1] - 20, 50, 10))
+            pygame.draw.rect(win, (0, 128, 0), (self.hitbox[0], self.hitbox[1] - 20, 50 - (5 * (10 - self.health)), 10))
+            self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+            # pygame.draw.rect(win, (255,0,0), self.hitbox,2)
+
+    def move(self):
+        if self.vel > 0:
+            if self.x + self.vel < self.path[1]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walkCount = 0
+        else:
+            if self.x - self.vel > self.path[0]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walkCount = 0
+
+    def hit(self):
+        if self.health > 0:
+            self.health -= 1
+        else:
+            self.visible = False
+        print('hit')
+
+
+def redrawGameWindow():
+    win.blit(bg, (0, 0))
+    text = font.render('Score: ' + str(score), 1, (0, 0, 0))
+    win.blit(text, (350, 10))
+    man.draw(win)
+    goblin.draw(win)
+    for bullet in bullets:
+        bullet.draw(win)
+
+    pygame.display.update()
+
+
+# mainloop
+font = pygame.font.SysFont('comicsans', 30, True)
+man = player(200, 410, 64, 64)
+goblin = enemy(100, 410, 64, 64, 450)
+shootLoop = 0
+bullets = []
+run = True
+while run:
+    clock.tick(27)
+
+    if goblin.visible == True:
+        if man.hitbox[1] < goblin.hitbox[1] + goblin.hitbox[3] and man.hitbox[1] + man.hitbox[3] > goblin.hitbox[1]:
+            if man.hitbox[0] + man.hitbox[2] > goblin.hitbox[0] and man.hitbox[0] < goblin.hitbox[0] + goblin.hitbox[2]:
+                man.hit()
+                score -= 5
+
+    if shootLoop > 0:
+        shootLoop += 1
+    if shootLoop > 3:
+        shootLoop = 0
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    for bullet in bullets:
+        if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[
+            1]:
+            if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + \
+                    goblin.hitbox[2]:
+                #hitSound.play()
+                goblin.hit()
+                score += 1
+                bullets.pop(bullets.index(bullet))
+
+        if bullet.x < 500 and bullet.x > 0:
+            bullet.x += bullet.vel
+        else:
+            bullets.pop(bullets.index(bullet))
+
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_SPACE] and shootLoop == 0:
+        #bulletSound.play()
+        if man.left:
+            facing = -1
+        else:
+            facing = 1
+
+        if len(bullets) < 5:
+            bullets.append(
+                projectile(round(man.x + man.width // 2), round(man.y + man.height // 2), 6, (0, 0, 0), facing))
+
+        shootLoop = 1
+
+    if keys[pygame.K_LEFT] and man.x > man.vel:
+        man.x -= man.vel
+        man.left = True
+        man.right = False
+        man.standing = False
+    elif keys[pygame.K_RIGHT] and man.x < 500 - man.width - man.vel:
+        man.x += man.vel
+        man.right = True
+        man.left = False
+        man.standing = False
+    else:
+        man.standing = True
+        man.walkCount = 0
+
+    if not (man.isJump):
+        if keys[pygame.K_UP]:
+            man.isJump = True
+            man.right = False
+            man.left = False
+            man.walkCount = 0
+    else:
+        if man.jumpCount >= -10:
+            neg = 1
+            if man.jumpCount < 0:
+                neg = -1
+            man.y -= (man.jumpCount ** 2) * 0.5 * neg
+            man.jumpCount -= 1
+        else:
+            man.isJump = False
+            man.jumpCount = 10
+
+    redrawGameWindow()
+
+pygame.quit()
