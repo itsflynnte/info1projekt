@@ -15,7 +15,7 @@ pygame.mixer.music.set_volume(.025)
 FPS = 60
 s_width = 1100      #Größe des Fensters
 s_height = 700      #Größe des Fensters
-mill_middle_x = 500    #Koordinaten des Mühlefelds
+mill_middle_x = 500   #Koordinaten des Mühlefelds
 mill_middle_y = 600   #Koordinaten des Mühlefelds
 BLACK = (0,0,0)
 block_size = 80
